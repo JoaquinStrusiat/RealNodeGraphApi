@@ -1,32 +1,37 @@
 const ObjectTypeModel = require("./ObjectTypeModel");
 
 const findTypesService = async (userKey, body) => {
-    if(!Array.isArray(body)){
+    if (!Array.isArray(body)) {
         throw new Error("The body must be an array with 'Pipeline stages'")
-    } else {
-        body.unshift({ $match: { owner: { $eq: userKey } } })
-        try {
-            const items = await ObjectTypeModel.aggregate(body);
-            const count = await ObjectTypeModel.countDocuments(body);
-            return { items, count };
-        } catch (err) {
-            throw err;
-        }
+    }
+
+    body.unshift({ $match: { owner: { $eq: userKey } } })
+
+    try {
+        const items = await ObjectTypeModel.aggregate(body);
+        const count = await ObjectTypeModel.countDocuments(body);
+        return { items, count };
+    } catch (err) {
+        throw err;
     }
 };
 
 const createTypeService = async (userKey, body) => {
     if (Object.prototype.toString.call(body) !== '[object Object]') {
-        throw new Error("The body must be an object")
-    } else if (body.schema) {
+        throw new Error("The body must be an Array with object types")
+    }
+
+    if (body.schema) {
         if (Object.prototype.toString.call(body.schema) !== '[object Object]') {
-            throw new Error("The 'schema' must be an object.");
-        } else {
-            for (const key in body.schema) {
-                const value = body.schema[key];
-                if (typeof value !== "string" || !validTypes.includes(value)) {
-                    throw new Error(`Error in '${key}': '${value}' is not a valid data type.`);
-                }
+            throw new Error(`The schema must be an Object`);
+        }
+
+        const validTypes = ["string", "number", "boolean", "date", "array", "object"];
+
+        for (const key in body.schema) {
+            const value = body.schema[key];
+            if (typeof value !== "string" || !validTypes.includes(value)) {
+                throw new Error(`The value for '${key}' is not a valid data type: Valid types are: ${validTypes.join(", ")}.`);
             }
         }
     }
@@ -40,54 +45,57 @@ const createTypeService = async (userKey, body) => {
     }
 }
 
-/* Mejorar esto
-const validateObjectInstance = (objectType, instanceData) => {
-    for (const key in objectType.schema) {
-        const expectedType = objectType.schema[key];
-        const actualValue = instanceData[key];
+const updateTypeService = async (userKey, body, _id) => {
+    if (!_id) {
+        throw new Error("The _id is required.");
+    }
 
-        // Validar tipo real del dato
-        if (expectedType === "array" && !Array.isArray(actualValue)) {
-            throw new Error(`El campo '${key}' debe ser un array.`);
-        }
-        if (expectedType !== "array" && typeof actualValue !== expectedType) {
-            throw new Error(`El campo '${key}' debe ser de tipo '${expectedType}', pero recibió '${typeof actualValue}'.`);
+    if (Object.prototype.toString.call(body) !== '[object Object]') {
+        throw new Error("The body must be an Object with valid attributes to update.");
+    }
+
+    const forbiddenFields = ['_id', 'owner'];
+    for (const field of forbiddenFields) {
+        if (field in body) {
+            throw new Error(`The attribute '${field}' cannot be modified.`);
         }
     }
-};
-*/
 
-const updateTypeService = async (userKey, body, _id) => {
+    try {
+        const object = await ObjectTypeModel.findOne({ owner: userKey, _id });
 
-    if (!_id) {
-        throw new Error("The _id is required")
-    } else if (Object.prototype.toString.call(body) !== '[object Object]') {
-        throw new Error("The body must be an object")
-    } else {   
-        const objectType = await ObjectTypeModel.findById(_id);
-        if (!objectType) {
-            throw new Error("The object type does not exist");
-        }
-        if (objectType.owner !== userKey) {
-            throw new Error("You are not the owner of this object type");
+        if (!object) {
+            throw new Error(`Type '${_id}' not found`);
         }
 
         if (body.schema) {
-            if (Object.prototype.toString.call(body.schema) === '[object Object]') {
-                for (const key in body.schema) {
-                    const value = body.schema[key];
-                    if (typeof value !== "string" || !validTypes.includes(value)) {
-                        throw new Error(`Error in '${key}': '${value}' is not a valid type. Valid types are: ${validTypes.join(", ")}`);
-                    }
+            if (Object.prototype.toString.call(body.schema) !== '[object Object]') {
+                throw new Error(`The schema must be an Object`);
+            }
+
+            const validTypes = ["string", "number", "boolean", "date", "array", "object"];
+
+            for (const key in body.schema) {
+                const value = body.schema[key];
+                if (typeof value !== "string" || !validTypes.includes(value)) {
+                    throw new Error(`The value for '${key}' is not a valid data type: Valid types are: ${validTypes.join(", ")}.`);
                 }
-            } else {
-                throw new Error("The schema must be an object");
             }
         }
 
+        const item = await ObjectTypeModel.findByIdAndUpdate(_id, body, {
+            new: true,              // devuelve el documento actualizado
+            runValidators: true,    // valida el body contra el esquema de Mongoose
+            context: 'query',       // necesario para algunas validaciones (por ej., validators personalizados)
+            upsert: false           // NO crea un nuevo documento si no existe
+        });
+
+        return item;
+
+    } catch (err) {
+        throw err;
     }
+};
 
-}
 
-
-module.exports = { findTypesService, createTypeService }
+module.exports = { findTypesService, createTypeService, updateTypeService }

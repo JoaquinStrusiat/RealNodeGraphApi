@@ -1,4 +1,4 @@
-const { findTypesService, createTypeService } = require("./TypeService.js")
+const { findTypesService, createTypeService, updateTypeService } = require("./TypeService.js")
 
 const findObjectsTypes = async (req, res) => {
     const { body, userKey } = req;
@@ -11,7 +11,7 @@ const findObjectsTypes = async (req, res) => {
     }
 }
 
-const createObjectTypes = async (req, res) => {
+const createObjectType = async (req, res) => {
     const { body, userKey } = req;
 
     try {
@@ -22,17 +22,18 @@ const createObjectTypes = async (req, res) => {
     }
 }
 
-const updateObjectTypes = async (req, res) => {
+const updateObjectType = async (req, res) => {
+    const { body, userKey, params } = req;
+
     try {
-        const { body, url } = req;
-        const obj = { function: "updateObjectsTypes", body, url };
-        res.send(obj)
+        const obj = await updateTypeService(userKey, body, params.id);
+        return res.status(201).send(obj);
     } catch (err) {
-        console.log("updateObjectsTypes: ", err)
+        return res.status(400).send({ err: err.message })
     }
 }
 
-const deleteObjectTypes = async (req, res) => {
+const deleteObjectType = async (req, res) => {
     try {
         const { body, url } = req;
         const obj = { function: "deleteObjectsTypes", body, url };
@@ -41,4 +42,4 @@ const deleteObjectTypes = async (req, res) => {
         console.log("deleteObjectsTypes: ", err)
     }
 }
-module.exports = { findObjectsTypes, createObjectTypes, updateObjectTypes, deleteObjectTypes };
+module.exports = { findObjectsTypes, createObjectType, updateObjectType, deleteObjectType };

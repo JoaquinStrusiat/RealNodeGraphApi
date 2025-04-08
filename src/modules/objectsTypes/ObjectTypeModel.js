@@ -9,7 +9,10 @@ const objectsTypes = new Schema({
     parent: { type: String, ref: "ObjectsTypes", default: null },
     owner: { type: String },
     schema: { type: Object, default: {} }
-}, { timestamps: true });
+}, { 
+    timestamps: true,
+    strict: 'throw'
+});
 
 //owner: { type: String, ref: "Objects", required: true }
 

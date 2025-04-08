@@ -1,9 +1,9 @@
 const router = require('express').Router();
-const { findObjectsTypes, createObjectTypes, updateObjectTypes, deleteObjectTypes } = require("./ObjectTypeControllers.js")
+const { findObjectsTypes, createObjectType, updateObjectType, deleteObjectType } = require("./ObjectTypeControllers.js")
 
 router.post('/findObjectsTypes', findObjectsTypes);
-router.post('/createObjectTypes', createObjectTypes);
-router.put('/updateObjectTypes', updateObjectTypes);
-router.delete('/deleteObjectTypes', deleteObjectTypes);
+router.post('/createObjectType', createObjectType);
+router.put('/updateObjectType/:id', updateObjectType);
+router.delete('/deleteObjectType/:id', deleteObjectType);
 
 module.exports = router;

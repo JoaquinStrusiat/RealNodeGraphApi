@@ -11,7 +11,7 @@ const createApp = (PORT) => {
   app.use(keyAuthMiddleware, verifyBodyMiddleware)
 
   //Impor the reoutes
-  const routes = require("./modules/moduleRouter.js")
+  const routes = require("./api/router.js")
   app.use("/api", routes);
 
   //Mejorar esta parte

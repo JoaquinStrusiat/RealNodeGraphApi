@@ -1,29 +1,26 @@
-const ObjectTypeModel = require("./ObjectTypeModel");
-
-const findTypesService = async (userKey, body) => {
+const findTypesService = async (model, userKey, body) => {
     if (!Array.isArray(body)) {
-        throw new Error("The body must be an array with 'Pipeline stages'")
+        throw new Error("The body must be an array with 'Pipeline stages'.")
     }
 
     body.unshift({ $match: { owner: { $eq: userKey } } })
 
     try {
-        const items = await ObjectTypeModel.aggregate(body);
-        const count = await ObjectTypeModel.countDocuments(body);
-        return { items, count };
+        const items = await model.aggregate(body);
+        return { items };
     } catch (err) {
         throw err;
     }
 };
 
-const createTypeService = async (userKey, body) => {
+const createTypeService = async (model, userKey, body) => {
     if (Object.prototype.toString.call(body) !== '[object Object]') {
-        throw new Error("The body must be an Array with object types")
+        throw new Error("The body must be an Object with valid attributes.")
     }
 
     if (body.schema) {
         if (Object.prototype.toString.call(body.schema) !== '[object Object]') {
-            throw new Error(`The schema must be an Object`);
+            throw new Error("The schema must be an Object.");
         }
 
         const validTypes = ["string", "number", "boolean", "date", "array", "object"];
@@ -38,23 +35,21 @@ const createTypeService = async (userKey, body) => {
 
     try {
         body.owner = userKey;
-        const items = await ObjectTypeModel.create(body);
+        const items = await model.create(body);
         return items;
     } catch (err) {
         throw err;
     }
 }
 
-const updateTypeService = async (userKey, body, _id) => {
-    if (!_id) {
-        throw new Error("The _id is required.");
-    }
+const updateTypeService = async (model, userKey, body, _id) => {
+    if (!_id) throw new Error("The _id is required.");
 
     if (Object.prototype.toString.call(body) !== '[object Object]') {
-        throw new Error("The body must be an Object with valid attributes to update.");
+        throw new Error("The body must be an Object with valid attributes.");
     }
 
-    const forbiddenFields = ['_id', 'owner'];
+    const forbiddenFields = ['_id', 'owner', 'createdAt', 'updatedAt'];
     for (const field of forbiddenFields) {
         if (field in body) {
             throw new Error(`The attribute '${field}' cannot be modified.`);
@@ -62,15 +57,13 @@ const updateTypeService = async (userKey, body, _id) => {
     }
 
     try {
-        const object = await ObjectTypeModel.findOne({ owner: userKey, _id });
+        const object = await model.findOne({ owner: userKey, _id });
 
-        if (!object) {
-            throw new Error(`Type '${_id}' not found`);
-        }
+        if (!object) throw new Error(`Type '${_id}' not found.`);
 
         if (body.schema) {
             if (Object.prototype.toString.call(body.schema) !== '[object Object]') {
-                throw new Error(`The schema must be an Object`);
+                throw new Error("The schema must be an Object.");
             }
 
             const validTypes = ["string", "number", "boolean", "date", "array", "object"];
@@ -83,7 +76,7 @@ const updateTypeService = async (userKey, body, _id) => {
             }
         }
 
-        const item = await ObjectTypeModel.findByIdAndUpdate(_id, body, {
+        const item = await model.findByIdAndUpdate(_id, body, {
             new: true,              // devuelve el documento actualizado
             runValidators: true,    // valida el body contra el esquema de Mongoose
             context: 'query',       // necesario para algunas validaciones (por ej., validators personalizados)
@@ -97,5 +90,17 @@ const updateTypeService = async (userKey, body, _id) => {
     }
 };
 
+const deleteTypeService = async (model, userKey, _id) => {
+    if (!_id) throw new Error("The _id is required.");
 
-module.exports = { findTypesService, createTypeService, updateTypeService }
+    try {
+        const item = await model.findOneAndDelete({ owner: userKey, _id });
+        if (!item) throw new Error(`Type '${_id}' not found.`);
+        return item;
+    } catch (err) {
+        throw err;
+    }
+}
+
+
+module.exports = { findTypesService, createTypeService, updateTypeService, deleteTypeService }

@@ -18,5 +18,13 @@ const keyAuthMiddleware = (req, res, next) => {
     }
 }
 
+const injectModelMiddleware = (model) => (req, res, next) => {
+    if (!model) {
+      return res.status(500).json({ error: 'Model not provided' });
+    }
+    req.model = model;
+    next();
+  };
 
-module.exports = { verifyBodyMiddleware, keyAuthMiddleware };
+
+module.exports = { verifyBodyMiddleware, keyAuthMiddleware, injectModelMiddleware };

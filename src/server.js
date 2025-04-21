@@ -11,7 +11,7 @@ const env = process.env;
 conectToDataBase(env);
 
 // If MongoDb is connected, create the app
-mongoose.connection.once('connected', () => {
+mongoose.connection.on('connected', () => {
   const PORT = env.SERVER_PORT || 3001;
   createApp(PORT);
 });

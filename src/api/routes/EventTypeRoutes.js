@@ -1,17 +1,20 @@
 const router = require('express').Router();
 
 //Controllers
-const { findTypes, createType, updateType, deleteType } = require("../controllers/TypesControllers.js")
+const { findController, createController, updateController, deleteController } = require("../controllers/Controllers.js")
 
 //Model
-const EventTypeModel = require("../models/EventTypeModel.js")
+const EventTypeModel = require("../models/EventTypeModel.js");
+
+//Services
+const services = require("../services/Services.js");
 
 //Middlewares
-const { injectModelMiddleware } = require("../../utils/middlewares.js");
+const { addModelAndServicesMiddleware } = require("../../utils/middlewares.js");
 
-router.post('/findEventsTypes', injectModelMiddleware(EventTypeModel), findTypes);
-router.post('/createEventType', injectModelMiddleware(EventTypeModel), createType);
-router.put('/updateEventType/:id', injectModelMiddleware(EventTypeModel), updateType);
-router.delete('/deleteEventType/:id', injectModelMiddleware(EventTypeModel), deleteType);
+router.post('/findEventsTypes', addModelAndServicesMiddleware(EventTypeModel, services), findController);
+router.post('/createEventType', addModelAndServicesMiddleware(EventTypeModel, services), createController);
+router.put('/updateEventType/:id', addModelAndServicesMiddleware(EventTypeModel, services), updateController);
+router.delete('/deleteEventType/:id', addModelAndServicesMiddleware(EventTypeModel, services), deleteController);
 
 module.exports = router; 

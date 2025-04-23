@@ -56,7 +56,7 @@ const updateService = async (model, userKey, body, _id) => {
         throw new Error("The body must be a non-empty.");
     }
 
-    const forbiddenFields = ['_id', 'owner', 'createdAt', 'updatedAt', 'dateTime'];
+    const forbiddenFields = ['_id', 'owner', 'createdAt', 'updatedAt'];
     for (const field of forbiddenFields) {
         if (field in body) {
             throw new Error(`The attribute '${field}' cannot be modified.`);

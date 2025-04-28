@@ -4,17 +4,19 @@ const router = require('express').Router();
 const { findController, createController, updateController, deleteController } = require("../controllers/Controllers.js")
 
 //Model
-const RelationModel = require("../models/RelationModel.js")
+const model = require("../models/RelationModel.js")
 
 //Services
-const services = require("../services/Services.js");
+const { findTypesService, findObjectsService: findService, ...res } = require("../services/Services.js");
+const services = { findService, ...res };
 
 //Middlewares
-const { addModelAndServicesMiddleware } = require("../../utils/middlewares.js");
+//const { addModelAndServicesMiddleware } = require("../../utils/middlewares.js");
+const handrail = require("../../middlewares/handrail.js");
 
-router.post('/findRelations', addModelAndServicesMiddleware(RelationModel, services), findController);
-router.post('/createRelation', addModelAndServicesMiddleware(RelationModel, services), createController);
-router.put('/updateRelation/:id', addModelAndServicesMiddleware(RelationModel, services), updateController);
-router.delete('/deleteRelation/:id', addModelAndServicesMiddleware(RelationModel, services), deleteController);
+router.post('/findRelations', handrail({model, services}), findController);
+router.post('/createRelation', handrail({model, services}), createController);
+router.put('/updateRelation/:id', handrail({model, services}), updateController);
+router.delete('/deleteRelation/:id', handrail({model, services}), deleteController);
 
 module.exports = router;

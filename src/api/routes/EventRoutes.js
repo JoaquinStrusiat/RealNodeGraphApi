@@ -4,17 +4,18 @@ const router = require('express').Router();
 const { findController, createController, updateController, deleteController } = require("../controllers/Controllers.js")
 
 //Model
-const EventTypeModel = require("../models/EventModel.js")
+const model = require("../models/EventModel.js")
 
 //Services
-const services = require("../services/Services.js");
+const { findTypesService, findObjectsService: findService, ...res } = require("../services/Services.js");
+const services = { findService, ...res };
 
 //Middlewares
-const { addModelAndServicesMiddleware } = require("../../utils/middlewares.js");
+const handrail = require("../../middlewares/handrail.js");
 
-router.post('/findEvents', addModelAndServicesMiddleware(EventTypeModel, services), findController);
-router.post('/createEvent', addModelAndServicesMiddleware(EventTypeModel, services), createController);
-router.put('/updateEvent/:id', addModelAndServicesMiddleware(EventTypeModel, services), updateController);
-router.delete('/deleteEvent/:id', addModelAndServicesMiddleware(EventTypeModel, services), deleteController);
+router.post('/findEvents', handrail({model, services}), findController);
+router.post('/createEvent', handrail({model, services}), createController);
+router.put('/updateEvent/:id', handrail({model, services}), updateController);
+router.delete('/deleteEvent/:id', handrail({model, services}), deleteController);
 
 module.exports = router;

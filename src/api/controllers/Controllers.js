@@ -1,9 +1,9 @@
 const findController = async (req, res) => {
-    const { body, userKey, model, path, method, services: { findService } } = req;
+    const { body, owner, model, path, method, services: { findService } } = req;
     const obj = { path, method };
 
     try {
-        const items = await findService(model, userKey, body);
+        const items = await findService(model, owner, body);
         obj.items = items;
         return res.send(obj);
     } catch (err) {
@@ -13,11 +13,11 @@ const findController = async (req, res) => {
 }
 
 const createController = async (req, res) => {
-    const { body, userKey, model, path, method, services: { createService } } = req;
+    const { body, owner, model, path, method, services: { createService } } = req;
     const obj = { path, method };
 
     try {
-        const item = await createService(model, userKey, body);
+        const item = await createService(model, owner, body);
         obj.item = item;
         return res.status(201).send(obj);
     } catch (err) {
@@ -27,11 +27,11 @@ const createController = async (req, res) => {
 }
 
 const updateController = async (req, res) => {
-    const { body, userKey, params: { id }, model, path, method, services: { updateService } } = req;
+    const { body, owner, params: { id }, model, path, method, services: { updateService } } = req;
     const obj = { path, method };
 
     try {
-        const item = await updateService(model, userKey, body, id);
+        const item = await updateService(model, owner, body, id);
         obj.item = item;
         return res.status(200).send(obj);
     } catch (err) {
@@ -41,11 +41,11 @@ const updateController = async (req, res) => {
 }
 
 const deleteController = async (req, res) => {
-    const { userKey, params: { id }, model, path, method, services: { deleteService } } = req;
+    const { owner, params: { id }, model, path, method, services: { deleteService } } = req;
     const obj = { path, method };
 
     try {
-        const item = await deleteService(model, userKey, id);
+        const item = await deleteService(model, owner, id);
         obj.item = item;
         return res.status(200).send(obj);
     } catch (err) {

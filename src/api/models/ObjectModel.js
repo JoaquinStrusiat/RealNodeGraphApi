@@ -4,9 +4,11 @@ const { Schema } = mongoose;
 const ObjectsSchema = new Schema({
     name: { type: String, required: true },
     description: { type: String, default: "" },
-    owner: { type: String, required: true },
+    image: { type: String, default: "" },
+    owner: { type: String, required: true, index: true },
     reference: {
         type: String,
+        index: true,
         default: null,
         ref: "Objects",
         validate: {
@@ -20,6 +22,7 @@ const ObjectsSchema = new Schema({
     },
     type: {
         type: String,
+        index: true,
         required: true,
         ref: "ObjectTypes",
         validate: {
@@ -31,13 +34,14 @@ const ObjectsSchema = new Schema({
             message: "Types not found."
         }
     },
-    status: { 
-        type: String, 
-        enum: { 
-            values: ["active", "inactive"], 
-            message: "The status can only be 'active' or 'inactive'." 
-        }, 
-        default: "active" 
+    status: {
+        type: String,
+        index: true,
+        enum: {
+            values: ["active", "inactive"],
+            message: "The status can only be 'active' or 'inactive'."
+        },
+        default: "active"
     },
     tags: {
         type: Schema.Types.Mixed,

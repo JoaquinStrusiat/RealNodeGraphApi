@@ -4,17 +4,18 @@ const router = require('express').Router();
 const { findController, createController, updateController, deleteController } = require("../controllers/Controllers.js")
 
 //Model
-const ObjectTypeModel = require("../models/ObjectTypeModel.js")
+const model = require("../models/ObjectTypeModel.js")
 
 //Services
-const services = require("../services/Services.js");
+const { findObjectsService, findTypesService: findService, ...res } = require("../services/Services.js");
+const services = { findService, ...res };
 
 //Middlewares
-const { addModelAndServicesMiddleware } = require("../../utils/middlewares.js");
+const handrail = require("../../middlewares/handrail.js");
 
-router.post('/findObjectsTypes', addModelAndServicesMiddleware(ObjectTypeModel, services), findController);
-router.post('/createObjectType', addModelAndServicesMiddleware(ObjectTypeModel, services), createController);
-router.put('/updateObjectType/:id', addModelAndServicesMiddleware(ObjectTypeModel, services), updateController);
-router.delete('/deleteObjectType/:id', addModelAndServicesMiddleware(ObjectTypeModel, services), deleteController);
+router.post('/findObjectsTypes', handrail({model, services}), findController);
+router.post('/createObjectType', handrail({model, services}), createController);
+router.put('/updateObjectType/:id', handrail({model, services}), updateController);
+router.delete('/deleteObjectType/:id', handrail({model, services}), deleteController);
 
 module.exports = router;

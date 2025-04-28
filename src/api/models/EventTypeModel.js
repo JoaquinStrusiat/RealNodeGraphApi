@@ -5,8 +5,10 @@ const EventTypesSchema = new Schema({
     _id: { type: String, required: true },
     name: { type: String, required: true },
     description: { type: String, default: "" },
+    image: { type: String, default: "" },
     parent: {
         type: String,
+        index: true,
         default: null,
         ref: "EventTypes",
         validate: {
@@ -18,8 +20,16 @@ const EventTypesSchema = new Schema({
             message: "Parent not found."
         }
     },
-    owner: { type: String, required: true },
-    status: { type: String, enum: { values: ["active", "inactive"], message: "The status can only be 'active' or 'inactive'." }, default: "active" },
+    owner: { type: String, required: true, index: true, },
+    status: {
+        type: String,
+        index: true,
+        enum: {
+            values: ["active", "inactive"],
+            message: "The status can only be 'active' or 'inactive'."
+        },
+        default: "active"
+    },
     tags: {
         type: Schema.Types.Mixed,
         default: [],
@@ -41,7 +51,7 @@ const EventTypesSchema = new Schema({
         validate: {
             validator: function (schemaMap) {
                 const allowedTypes = ["string", "number", "boolean", "array", "object"];
-                
+
                 for (const [propertyName, type] of schemaMap) {
                     if (!allowedTypes.includes(type)) {
                         throw new Error(`The type "${type}" on "${propertyName}" is an invalid type. Valid types: ${allowedTypes.join(", ")}`);

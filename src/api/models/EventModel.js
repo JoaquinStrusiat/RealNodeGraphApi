@@ -1,38 +1,12 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const dateTimeSchema = new mongoose.Schema({
-    timestamp: { type: Number, default: null},
-    year: { type: Number, default: null },
-    month: { type: Number, default: null },
-    day: { type: Number, default: null },
-    time: {
-        type: String,
-        required: true,
-        validate: {
-            validator: v => /^\d{2}:\d{2}:\d{2}$/.test(v),
-            message: props => `${props.value} no tiene formato hh:mm:ss`
-        }
-    }
-}, { _id: false, strict: 'throw' });
-
-
-const getNowDateTime = () => {
-    const now = new Date();
-    return {
-        timestamp: now.getTime(),
-        year: now.getFullYear(),
-        month: now.getMonth() + 1,
-        day: now.getDate(),
-        time: now.toTimeString().split(" ")[0]
-    };
-}
-
 const EventsSchema = new Schema({
     name: { type: String, required: true },
     description: { type: String, default: "" },
     reference: {
         type: String,
+        index: true,
         default: null,
         ref: "Events",
         validate: {
@@ -46,6 +20,7 @@ const EventsSchema = new Schema({
     },
     type: {
         type: String,
+        index: true,
         required: true,
         ref: "EventTypes",
         validate: {
@@ -57,9 +32,10 @@ const EventsSchema = new Schema({
             message: "Types not found."
         }
     },
-    owner: { type: String, required: true },
+    owner: { type: String, required: true, index: true },
     status: {
         type: String,
+        index: true,
         enum: {
             values: ["pending", "inProgress", "finished", "cancelled"],
             message: "The status can only be one of the following values: 'pending', 'inProgress', 'finished', or 'cancelled'."
@@ -109,18 +85,13 @@ const EventsSchema = new Schema({
             message: props => props.reason.message
         }
     },
-    dateTime: {
-        type: dateTimeSchema,
-        default: getNowDateTime,
-        required: true
-    },
     duration: {
         start: {
-            type: dateTimeSchema,
+            type: Date,
             default: null
         },
         end: {
-            type: dateTimeSchema,
+            type: Date,
             default: null
         }
     }
@@ -131,3 +102,4 @@ const EventsSchema = new Schema({
 
 const EventTypeModel = mongoose.model('Events', EventsSchema);
 module.exports = EventTypeModel;
+

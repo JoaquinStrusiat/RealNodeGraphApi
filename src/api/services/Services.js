@@ -1,70 +1,80 @@
-const findService = async (model, userKey, body) => {
-    if (!Array.isArray(body)) {
-        throw new Error("The body must be an array with 'Pipeline stages'.")
-    }
+const { Types } = require('mongoose');
 
-    body.unshift({ $match: { owner: { $eq: userKey } } })
+const findObjectsService = async (model, owner, body) => {
+    if (!Array.isArray(body)) throw new Error("The body must be an array with 'Pipeline stages'.")
+
+    body.unshift({ $match: { owner: { $eq: owner } } })
+    body = body.map(stage => {
+        if (stage.$match && stage.$match._id && typeof stage.$match._id.$eq === 'string') {
+            return {
+                ...stage,
+                $match: {
+                    ...stage.$match,
+                    _id: {
+                        $eq: new Types.ObjectId(stage.$match._id.$eq)
+                    }
+                }
+            };
+        }
+        return stage;
+    });
 
     try {
         const items = await model.aggregate(body);
         return items;
     } catch (err) {
-        if (err.name === 'ValidationError') {
-            throw new Error(`Validation error: ${err.message}`);
-        }
-        if (err.name === 'CastError') {
-            throw new Error(`Invalid data type for field: ${err.path}`);
-        }
+        if (err.name === 'ValidationError') throw new Error(`Validation error: ${err.message}`);
+        if (err.name === 'CastError') throw new Error(`Invalid data type for field: ${err.path}`);
         throw err;
     }
 };
 
-const createService = async (model, userKey, body) => {
-    if (Object.prototype.toString.call(body) !== '[object Object]') {
-        throw new Error("The body must be an Object with valid attributes.")
+const findTypesService = async (model, owner, body) => {
+    if (!Array.isArray(body)) throw new Error("The body must be an array with 'Pipeline stages'.")
+
+    body.unshift({ $match: { owner: { $eq: owner } } })
+
+    try {
+        const items = await model.aggregate(body);
+        return items;
+    } catch (err) {
+        if (err.name === 'ValidationError') throw new Error(`Validation error: ${err.message}`);
+        if (err.name === 'CastError') throw new Error(`Invalid data type for field: ${err.path}`);
+        throw err;
     }
+};
+
+const createService = async (model, owner, body) => {
+    if (Object.prototype.toString.call(body) !== '[object Object]') throw new Error("The body must be an Object with valid attributes.")
 
     const forbiddenFields = ['owner', 'createdAt', 'updatedAt'];
     for (const field of forbiddenFields) {
-        if (field in body) {
-            throw new Error(`The attribute '${field}' cannot be modified.`);
-        }
+        if (field in body) throw new Error(`The attribute '${field}' cannot be modified.`);
     }
 
     try {
-        body.owner = userKey;
+        body.owner = owner;
         const item = await model.create(body);
         return item;
     } catch (err) {
-        if (err.name === 'ValidationError') {
-            throw new Error(`Validation error: ${err.message}`);
-        }
-        if (err.name === 'CastError') {
-            throw new Error(`Invalid data type for field: ${err.path}`);
-        }
+        if (err.name === 'ValidationError') throw new Error(`Validation error: ${err.message}`);
+        if (err.name === 'CastError') throw new Error(`Invalid data type for field: ${err.path}`);
         throw err;
     }
 }
 
-const updateService = async (model, userKey, body, _id) => {
+const updateService = async (model, owner, body, _id) => {
     if (!_id) throw new Error("The _id is required.");
-
-    if (Object.prototype.toString.call(body) !== '[object Object]') {
-        throw new Error("The body must be an Object with valid attributes.");
-    }
-    if (Object.keys(body).length === 0) {
-        throw new Error("The body must be a non-empty.");
-    }
+    if (Object.prototype.toString.call(body) !== '[object Object]') throw new Error("The body must be an Object with valid attributes.");
+    if (Object.keys(body).length === 0) throw new Error("The body must be a non-empty.");
 
     const forbiddenFields = ['_id', 'owner', 'createdAt', 'updatedAt'];
     for (const field of forbiddenFields) {
-        if (field in body) {
-            throw new Error(`The attribute '${field}' cannot be modified.`);
-        }
+        if (field in body) throw new Error(`The attribute '${field}' cannot be modified.`);
     }
 
     try {
-        const object = await model.findOne({ owner: userKey, _id });
+        const object = await model.findOne({ owner: owner, _id });
 
         if (!object) throw new Error(`Type '${_id}' not found.`);
 
@@ -79,34 +89,25 @@ const updateService = async (model, userKey, body, _id) => {
         return item;
 
     } catch (err) {
-        if (err.name === 'ValidationError') {
-            throw new Error(`Validation error: ${err.message}`);
-        }
-        if (err.name === 'CastError') {
-            throw new Error(`Invalid data type for field: ${err.path}`);
-        }
+        if (err.name === 'ValidationError') throw new Error(`Validation error: ${err.message}`);
+        if (err.name === 'CastError') throw new Error(`Invalid data type for field: ${err.path}`);
         throw err;
     }
 };
 
-const deleteService = async (model, userKey, _id) => {
+const deleteService = async (model, owner, _id) => {
     if (!_id) throw new Error("The _id is required.");
 
     try {
-        const item = await model.findOneAndDelete({ owner: userKey, _id });
+        const item = await model.findOneAndDelete({ owner: owner, _id });
         if (!item) throw new Error(`Type '${_id}' not found.`);
         return item;
     } catch (err) {
-        if (err.name === 'ValidationError') {
-            throw new Error(`Validation error: ${err.message}`);
-        }
-        if (err.name === 'CastError') {
-            throw new Error(`Invalid data type for field: ${err.path}`);
-        }
+        if (err.name === 'ValidationError') throw new Error(`Validation error: ${err.message}`);
+        if (err.name === 'CastError') throw new Error(`Invalid data type for field: ${err.path}`);
         throw err;
     }
 }
 
-const services = { findService, createService, updateService, deleteService };
-
+const services = { findObjectsService, findTypesService, createService, updateService, deleteService };
 module.exports = services;

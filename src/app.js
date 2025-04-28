@@ -1,24 +1,57 @@
+// Import express.
+const express = require('express');
+
+//Import cors, a tool to allow cross origin requests.
+const cors = require('cors');
+const cors_config = {
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'api-key'],
+  credentials: true,
+}
+
+//Iport the list endpoints, a tool to list the endpoints of the app.
+const listEndpoints = require('express-list-endpoints');
+
+//Import the middlewares for the routes.
+const authenticateOwner = require('./middlewares/authenticateOwner.js');
+const bodyFormatVerificate = require('./middlewares/bodyFormatVerificate.js');
+
 const createApp = (PORT) => {
-  const express = require('express');
   const app = express();
 
-  const cors = require('cors');
-  app.use(cors());
-  app.use(express.json());
+  //congurate cors
+  app.use(cors(cors_config));
+  app.options('*', cors());
 
-  // Impor the Middlewares
-  const { keyAuthMiddleware, verifyBodyMiddleware } = require("./utils/middlewares.js")
-  app.use(keyAuthMiddleware, verifyBodyMiddleware)
+  //Use the middlewares
+  app.use(express.json())
+  app.use(authenticateOwner, bodyFormatVerificate)
 
   //Impor the reoutes
-  const routes = require("./api/router.js")
-  app.use("/api", routes);
+  const api = require("./api/router.js")
+  app.use("/api", api);
+
+  //Import the services
+  const services = require('./services/router.js');
+  app.use("/services", services);
+
+  // Mostrar las rutas disponibles
+  app.use("/routes", (req, res) => {
+    const routes = listEndpoints(app);
+    const formatRoutes = routes.reduce((acc, route) => {
+      if (route.path !== "*" && !route.path.startsWith("/services")) {
+        acc.push({ route: route.path, methods: route.methods })
+      }
+      return acc;
+    }, [])
+    res.json(formatRoutes)
+  })
 
   //Mejorar esta parte
   app.all("*", async (req, res) => { res.status(404).send({ err: `Route not found: ${req.url}` }) })
 
   app.listen(PORT, () => { console.log(`\nTu app está lista por http://localhost:${PORT}`); });
-
 }
 
 module.exports = createApp;

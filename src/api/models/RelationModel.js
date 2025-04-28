@@ -1,29 +1,11 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-//Dejo algunas props a evaluar
-/*
-name: { type: String, required: true },
-description: { type: String, default: "" },
-reference: {
-        type: String,
-        default: null,
-        ref: "Objects",
-        validate: {
-            validator: async function (v) {
-                if (v === null) return true;
-                const doc = await mongoose.model("Objects").findById(v);
-                return doc !== null;
-            },
-            message: "Reference not found."
-        }
-    },
-*/
-
 const RelationSchema = new Schema({
-    owner: { type: String, required: true },
+    owner: { type: String, required: true, index: true },
     type: {
         type: String,
+        index: true,
         required: true,
         ref: "RelationTypes",
         validate: {
@@ -36,7 +18,8 @@ const RelationSchema = new Schema({
         }
     },
     status: { 
-        type: String, 
+        type: String,
+        index: true, 
         enum: { 
             values: ["active", "inactive"], 
             message: "The status can only be 'active' or 'inactive'." 

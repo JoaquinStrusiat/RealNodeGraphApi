@@ -5,10 +5,20 @@ const ObjectTypesSchema = new Schema({
     _id: { type: String, required: true },
     name: { type: String, required: true },
     description: { type: String, default: "" },
-    owner: { type: String, required: true },
-    status: { type: String, enum: { values: ["active", "inactive"], message: "The status can only be 'active' or 'inactive'." }, default: "active" },
+    image: { type: String, default: "" },
+    owner: { type: String, required: true, index: true },
+    status: { 
+        type: String,
+        index: true, 
+        enum: { 
+            values: ["active", "inactive"], 
+            message: "The status can only be 'active' or 'inactive'." 
+        }, 
+        default: "active" 
+    },
     parent: {
         type: String,
+        index: true,
         default: null,
         ref: "ObjectTypes",
         validate: {

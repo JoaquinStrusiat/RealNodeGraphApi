@@ -24,7 +24,7 @@ const sendEmail = async (req, res) => {
             text: message,
         });
 
-        return res.status(200).send({ ok: {message: "Email sended successfully", messageId: info.messageId, info: info}});
+        return res.status(200).send({ ok: {message: "Email sended successfully", messageId: info.messageId}});
 
     } catch (error) {
         return res.status(500).send({ error: { message: "Error al enviar el correo" } });

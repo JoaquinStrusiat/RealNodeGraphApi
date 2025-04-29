@@ -40,7 +40,7 @@ const createApp = (PORT) => {
   app.use("/routes", (req, res) => {
     const routes = listEndpoints(app);
     const formatRoutes = routes.reduce((acc, route) => {
-      if (route.path !== "*" && !route.path.startsWith("/services")) {
+      if (route.path !== "*") {
         acc.push({ route: route.path, methods: route.methods })
       }
       return acc;

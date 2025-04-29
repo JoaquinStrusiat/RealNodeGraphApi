@@ -1,4 +1,4 @@
-const hashPasword = require('../utils/hashString.js');
+const hashPassword = require('../utils/hashString.js');
 
 const registerUser = async (req, res) => {
   const { path, method, body } = req;
@@ -39,7 +39,7 @@ const registerUser = async (req, res) => {
   }
 
   try {
-    const hashedPassword = await hashPasword(password1);
+    const hashedPassword = await hashPassword(password1);
     
     response.item = {
       name,

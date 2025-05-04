@@ -6,7 +6,6 @@ const RelationTypeSchema = new Schema({
     name: { type: String, required: true },
     description: { type: String, default: "" },
     image: { type: String, default: "" },
-    owner: { type: String, required: true, index: true },
     status: { 
         type: String,
         index: true, 

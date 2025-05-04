@@ -20,7 +20,6 @@ const EventTypesSchema = new Schema({
             message: "Parent not found."
         }
     },
-    owner: { type: String, required: true, index: true, },
     status: {
         type: String,
         index: true,

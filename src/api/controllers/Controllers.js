@@ -6,9 +6,9 @@ const findController = async (req, res) => {
         const items = await findService(model, owner, body);
         obj.items = items;
         return res.send(obj);
-    } catch (err) {
-        obj.err = err.message;
-        return res.status(400).send(obj);
+    } catch (error) {
+        obj.error = error.toResponse();
+        return res.status(error.statusCode).send(obj);
     }
 }
 
@@ -20,9 +20,9 @@ const createController = async (req, res) => {
         const item = await createService(model, owner, body);
         obj.item = item;
         return res.status(201).send(obj);
-    } catch (err) {
-        obj.err = err.message;
-        return res.status(400).send(obj);
+    } catch (error) {
+        obj.error = error.toResponse();
+        return res.status(error.statusCode).send(obj);
     }
 }
 
@@ -34,9 +34,9 @@ const updateController = async (req, res) => {
         const item = await updateService(model, owner, body, id);
         obj.item = item;
         return res.status(200).send(obj);
-    } catch (err) {
-        obj.err = err.message;
-        return res.status(400).send(obj);
+    } catch (error) {
+        obj.error = error.toResponse();
+        return res.status(error.statusCode).send(obj);
     }
 }
 
@@ -48,9 +48,9 @@ const deleteController = async (req, res) => {
         const item = await deleteService(model, owner, id);
         obj.item = item;
         return res.status(200).send(obj);
-    } catch (err) {
-        obj.err = err.message;
-        return res.status(400).send(obj)
+    } catch (error) {
+        obj.error = error.toResponse();
+        return res.status(error.statusCode).send(obj);
     }
 }
 

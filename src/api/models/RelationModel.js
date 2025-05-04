@@ -17,6 +17,16 @@ const RelationSchema = new Schema({
             message: "Types not found."
         }
     },
+    from:{
+        type: String, 
+        index: true, 
+        required: true
+    },
+    to: {
+        type: String, 
+        index: true, 
+        required: true
+    },
     status: { 
         type: String,
         index: true, 
@@ -25,6 +35,15 @@ const RelationSchema = new Schema({
             message: "The status can only be 'active' or 'inactive'." 
         }, 
         default: "active" 
+    },
+    access: { 
+        type: String,
+        index: true,
+        enum: {
+            values: ["private", "public"],
+            message: "The access can only be 'private' or 'public'."
+        },
+        default: "private"
     },
     tags: {
         type: Schema.Types.Mixed,

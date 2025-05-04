@@ -26,15 +26,22 @@ const createApp = (PORT) => {
 
   //Use the middlewares
   app.use(express.json())
-  app.use(authenticateOwner, bodyFormatVerificate)
+  app.use(bodyFormatVerificate)
 
   //Impor the reoutes
   const api = require("./api/router.js")
-  app.use("/api", api);
+  app.use("/api", authenticateOwner, api);
 
   //Import the services
   const services = require('./services/router.js');
-  app.use("/services", services);
+  app.use("/services", authenticateOwner, services);
+
+  //Import the auth routes
+  const registerUser = require('./auth/registerUser.js');
+  app.post("/registerUser", registerUser);
+
+  const loginUser = require('./auth/loginUser.js');
+  app.post("/loginUser", loginUser);
 
   // Mostrar las rutas disponibles
   app.use("/routes", (req, res) => {

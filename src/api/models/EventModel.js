@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 const EventsSchema = new Schema({
     name: { type: String, required: true },
     description: { type: String, default: "" },
+    owner: { type: String, required: true, index: true },
     reference: {
         type: String,
         index: true,
@@ -32,7 +33,6 @@ const EventsSchema = new Schema({
             message: "Types not found."
         }
     },
-    owner: { type: String, required: true, index: true },
     status: {
         type: String,
         index: true,
@@ -41,6 +41,15 @@ const EventsSchema = new Schema({
             message: "The status can only be one of the following values: 'pending', 'inProgress', 'finished', or 'cancelled'."
         },
         default: "pending"
+    },
+    access: { 
+        type: String,
+        index: true,
+        enum: {
+            values: ["private", "public"],
+            message: "The access can only be 'private' or 'public'."
+        },
+        default: "private"
     },
     tags: {
         type: Schema.Types.Mixed,

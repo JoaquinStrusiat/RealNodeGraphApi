@@ -7,11 +7,9 @@ const { findController, createController, updateController, deleteController } =
 const model = require("../models/RelationModel.js")
 
 //Services
-const { findTypesService, findObjectsService: findService, ...res } = require("../services/Services.js");
-const services = { findService, ...res };
+const services = require("../services/ObjectsServices.js");
 
 //Middlewares
-//const { addModelAndServicesMiddleware } = require("../../utils/middlewares.js");
 const handrail = require("../../middlewares/handrail.js");
 
 router.post('/findRelations', handrail({model, services}), findController);

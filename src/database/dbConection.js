@@ -2,16 +2,19 @@ const mongoose = require('mongoose');
 let URL;
 
 const conectToDataBase = async (env) => {
-    const { DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT } = env;
-    if (DB_USERNAME && DB_PASSWORD && DB_NAME && DB_HOST && DB_PORT) {
-        URL = `mongodb://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?authSource=admin`
+    const {DB_URL} = env;
+    if (DB_URL) {
+        URL = DB_URL;
+    } else {
+        console.error("The envirement variable DB_URL is not defined. Please set it in the .env file ");
+    }
+
+    if(URL){
         try {
             await mongoose.connect(URL);
         } catch (err) {
             console.error("--- Error de conexión a la base de datos: ", err);
         }
-    } else {
-        console.error("Error in environments values: ", { DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST, DB_PORT });
     }
 }
 

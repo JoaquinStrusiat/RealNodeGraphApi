@@ -7,8 +7,7 @@ const { findController, createController, updateController, deleteController } =
 const model = require("../models/ObjectModel.js")
 
 //Services
-const { findTypesService, findObjectsService: findService, ...res } = require("../services/Services.js");
-const services = { findService, ...res };
+const services = require("../services/ObjectsServices.js");
 
 //Middlewares
 const handrail = require("../../middlewares/handrail.js");

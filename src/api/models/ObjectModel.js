@@ -43,6 +43,15 @@ const ObjectsSchema = new Schema({
         },
         default: "active"
     },
+    access: { 
+        type: String,
+        index: true,
+        enum: {
+            values: ["private", "public"],
+            message: "The access can only be 'private' or 'public'."
+        },
+        default: "private"
+    },
     tags: {
         type: Schema.Types.Mixed,
         default: [],

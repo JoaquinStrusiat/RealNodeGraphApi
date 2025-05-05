@@ -3,7 +3,6 @@ const ErrorState = require('./ErrorState');
 const UserModel = require('../api/models/UserModel');
 
 const hasAccessToTypes = async (owner) => {
-
     if (!EMAIL) throw new ErrorState(500, 'Internal Server Error', 'The value "EMAIL" is required in the .env file')
     
     try{

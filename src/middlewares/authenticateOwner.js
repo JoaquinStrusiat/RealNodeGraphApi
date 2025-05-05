@@ -8,7 +8,7 @@ const authenticateOwner = (req, res, next) => {
 
     try{
         const owner = jsonwebtoken.verifyToken(authorization);
-        res.owner = owner._id;
+        req.owner = owner._id;
         next()
     } catch(error){
         response.error = { title: 'Invalid Token or expired', message: error.message };

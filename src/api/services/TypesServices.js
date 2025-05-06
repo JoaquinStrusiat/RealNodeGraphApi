@@ -1,5 +1,5 @@
 const ErrorState = require('../../utils/ErrorState');
-const hasAccessToTypes = require('../../utils/hasAccesToTypes')
+const validateAdmin = require('../../utils/validateAdmin')
 
 const findService = async (model, owner, body) => {
     if (!Array.isArray(body)) throw new ErrorState(400, 'Bad Request', 'The body must be an array with "Pipeline stages".')
@@ -16,9 +16,8 @@ const findService = async (model, owner, body) => {
 };
 
 const createService = async (model, owner, body) => {
-    const access = await hasAccessToTypes(owner);
-    if (!access) throw new ErrorState(403, 'Forbidden', 'You do not have permission to perform this action.');
-
+    await validateAdmin(owner);
+    
     if (Object.prototype.toString.call(body) !== '[object Object]') throw new ErrorState(400, 'Bad Request', 'The body must be an Object with valid attributes.')
 
     const forbiddenFields = ['createdAt', 'updatedAt'];
@@ -38,8 +37,7 @@ const createService = async (model, owner, body) => {
 };
 
 const updateService = async (model, owner, body, _id) => {
-    const access = await hasAccessToTypes(owner);
-    if (!access) throw new ErrorState(403, 'Forbidden', 'You do not have permission to perform this action.');
+    await validateAdmin(owner);
 
     if (!_id) throw new ErrorState(400, 'Bad Request', 'The _id is required.');
     if (Object.prototype.toString.call(body) !== '[object Object]') throw new ErrorState(400, 'Bad Request', 'The body must be an Object with valid attributes.');
@@ -72,13 +70,11 @@ const updateService = async (model, owner, body, _id) => {
 };
 
 const deleteService = async (model, owner, _id) => {
-    const access = await hasAccessToTypes(owner);
-    if (!access) throw new ErrorState(403, 'Forbidden', 'You do not have permission to perform this action.');
+    await validateAdmin(owner);
 
     if (!_id) throw new ErrorState(400, 'Bad Request', 'The _id is required.');
 
     try {
-
         const item = await model.findOneAndDelete({ _id });
         if (!item) throw new ErrorState(404, 'Not Found', `Object with _id '${_id}' not found.`);
         return item;

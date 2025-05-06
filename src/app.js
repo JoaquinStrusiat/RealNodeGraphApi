@@ -30,7 +30,7 @@ const createApp = (PORT) => {
 
   //Impor the reoutes
   const api = require("./api/router.js")
-  app.use("/api", authenticateOwner, api);
+  app.use("/api", api);
 
   //Import the services
   const services = require('./services/router.js');

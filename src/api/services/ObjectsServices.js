@@ -24,9 +24,7 @@ const findService = async (model, owner, body) => {
         });
 
         const items = await model.aggregate(formatedPipline);
-
         return items;
-
     } catch (error) {
         if (error.name === 'ValidationError') throw new ErrorState(400, 'ValidationError', error.message);
         if (error.name === 'CastError') throw new ErrorState(400, 'Invalid data type for field', error.message);

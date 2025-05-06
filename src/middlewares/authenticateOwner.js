@@ -1,18 +1,25 @@
-const jsonwebtoken = require('../utils/jsonWebToken'); 
+const jsonwebtoken = require('../utils/jsonWebToken');
+const ErrorState = require('../utils/ErrorState');
 
 const authenticateOwner = (req, res, next) => {
-    const { path, method, headers: { authorization} } = req;
+    const { path, method, headers: { authorization } } = req;
     const response = { path, method };
 
-    if(!authorization) return res.status(401).send({error: { message: 'Authorization key not provided' }});
+    try {
+        if (!authorization) throw new ErrorState(401, 'Unauthorized','Missing authorization header, please login first')
 
-    try{
         const owner = jsonwebtoken.verifyToken(authorization);
+
         req.owner = owner._id;
         next()
-    } catch(error){
-        response.error = { title: 'Invalid Token or expired', message: error.message };
-        return res.status(400).json(response);
+    } catch (error) {
+        if(error.name === "ErrorState") {
+            response.error = error.toResponse()
+            return res.status(error.statusCode).json(response);
+        } else {
+            response.error = { title: 'Unauthorized', message: error.message, statusCode: 401 };
+            return res.status(400).json(response);
+        }
     }
 }
 

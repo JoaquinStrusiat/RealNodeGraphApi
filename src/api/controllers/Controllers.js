@@ -1,8 +1,13 @@
+const authenticateUser = require('../../utils/authenticateUser');
+
 const findController = async (req, res) => {
-    const { body, owner, model, path, method, services: { findService } } = req;
+    const { body, model, path, method, services: { findService }, headers: { authorization } } = req;
     const obj = { path, method };
+    let owner;
 
     try {
+        if (authorization) owner = await authenticateUser(authorization);
+
         const items = await findService(model, owner, body);
         obj.items = items;
         return res.send(obj);
@@ -13,10 +18,12 @@ const findController = async (req, res) => {
 }
 
 const createController = async (req, res) => {
-    const { body, owner, model, path, method, services: { createService } } = req;
+    const { body, model, path, method, services: { createService }, headers: { authorization } } = req;
     const obj = { path, method };
 
     try {
+        const owner = await authenticateUser(authorization);
+
         const item = await createService(model, owner, body);
         obj.item = item;
         return res.status(201).send(obj);
@@ -27,10 +34,12 @@ const createController = async (req, res) => {
 }
 
 const updateController = async (req, res) => {
-    const { body, owner, params: { id }, model, path, method, services: { updateService } } = req;
+    const { body, params: { id }, model, path, method, services: { updateService }, headers: { authorization } } = req;
     const obj = { path, method };
 
     try {
+        const owner = await authenticateUser(authorization);
+
         const item = await updateService(model, owner, body, id);
         obj.item = item;
         return res.status(200).send(obj);
@@ -41,10 +50,12 @@ const updateController = async (req, res) => {
 }
 
 const deleteController = async (req, res) => {
-    const { owner, params: { id }, model, path, method, services: { deleteService } } = req;
+    const { params: { id }, model, path, method, services: { deleteService }, headers: { authorization } } = req;
     const obj = { path, method };
 
     try {
+        const owner = await authenticateUser(authorization);
+
         const item = await deleteService(model, owner, id);
         obj.item = item;
         return res.status(200).send(obj);

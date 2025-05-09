@@ -1,5 +1,5 @@
-import EventModel from "../api/models/EventModel";
-import RelationModel from "../api/models/RelationModel";
+const EventModel = require("../api/models/EventModel");
+const RelationModel = require("../api/models/RelationModel");
 
 const createAppointment = async (req, res) => {
     const { path, method, body, owner } = req;
@@ -58,43 +58,3 @@ const createAppointment = async (req, res) => {
 }
 
 module.exports = createAppointment;
-
-
-const obj = {
-    "email": "joaquinpjs@gmail.com",
-    "datetime-local": "2025-05-12T12:00",
-    "phone_number": "",
-    "custom_requests": "",
-    "services": [
-        "681a162abf0d1ef4fb57827b",
-        "681a1c61bf0d1ef4fb578280"
-    ],
-    "duration": 120,
-    "service_unit": {
-        "_id": "6819fccf6b483e8f69f3ca15",
-        "name": "Spa Sentirse Bien",
-        "description": "Redescubrí tu bienestar en nuestro spa, un refugio pensado para desconectar del mundo y reconectar con vos. Sumergite en una experiencia única de relajación, belleza y armonía, donde cada detalle está diseñado para cuidar tu cuerpo, calmar tu mente y renovar tu energía. Con tratamientos personalizados, aromas envolventes y un ambiente sereno, te invitamos a regalarte ese momento que tanto merecés.",
-        "image": "https://media.istockphoto.com/id/944822144/es/foto/orgulloso-propietario-y-compa%C3%B1eros-de-trabajo-de-un-spa-de-belleza.jpg?s=612x612&w=0&k=20&c=3UU5MBnmLGLna7JRVx1jCXsQyxE6cggi65U4yaipQIo=",
-        "owner": "681811fde05125f00b993b0e",
-        "reference": null,
-        "type": "spa",
-        "status": "active",
-        "access": "public",
-        "tags": [
-            "Spa",
-            "Sentirse",
-            "Bien",
-            "servicio",
-            "spa"
-        ],
-        "props": {
-            "location": "Resistencia, Chaco, Argentina",
-            "adress": "French 414",
-            "hours_operation": "Lunes a Viernes de 8:00hs a 12:00hs y 17:00 a 21:00hs ",
-            "contact": "spasentirsebien@gmail.com"
-        },
-        "createdAt": "2025-05-06T12:13:03.882Z",
-        "updatedAt": "2025-05-06T22:06:26.494Z",
-        "__v": 0
-    }
-}

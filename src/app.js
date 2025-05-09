@@ -5,8 +5,8 @@ const express = require('express');
 const cors = require('cors');
 const cors_config = {
   origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'api-key'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'api-key', 'Authorization'],
   credentials: true,
 }
 

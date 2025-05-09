@@ -2,13 +2,13 @@ const transporter = require('../utils/emailTransporter.js');
 const localEmail = process.env.EMAIL;
 
 const sendEmail = async (req, res) => {
-    const { message, email, title } = req.body;
+    const { html, email, title } = req.body;
 
-    if (!message || !email || !title) {
-        return res.status(400).send({ error: { message: 'The values "message", "email" and "title" are required' } });
+    if (!html || !email || !title) {
+        return res.status(400).send({ error: { message: 'The values "html", "email" and "title" are required' } });
     }
 
-    if(typeof email !== 'string' || typeof message !== 'string' || typeof title !== 'string'){
+    if(typeof email !== 'string' || typeof html !== 'string' || typeof title !== 'string'){
         return res.status(400).send({ error: { message: "The values must be a string" } });
     }
 
@@ -21,7 +21,7 @@ const sendEmail = async (req, res) => {
             from: `"Mi App" <${localEmail}>`,
             to: email,
             subject: title,
-            text: message,
+            html: html,
         });
 
         return res.status(200).send({ ok: {message: "Email sended successfully", messageId: info.messageId}});

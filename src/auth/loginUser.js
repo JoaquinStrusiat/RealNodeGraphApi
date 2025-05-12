@@ -20,7 +20,7 @@ const loginUser = async (req, res) => {
 
         const token = jsonWebToken.generateToken({ _id: user._id }, '7d');
 
-        response.ok = {message: 'Login successful', data: {token, email: user.email, name: user.name, last_name: user.last_name} };
+        response.ok = {message: 'Login successful', data: {token, _id: user._id, email: user.email, name: user.name, last_name: user.last_name} };
         return res.status(200).json(response);
 
     } catch (error){

@@ -15,15 +15,15 @@ const createAppointment = async (req, res) => {
 
         const appointment = await EventModel.create({
             type: "spa_appointment",
-            name: `Turno de ${owner}`,
+            name: `Turno de ${body.email}`,
             access: "public",
-            tags: [`${owner}`, body.email],
+            tags: [`${owner}`, body.email, owner],
             props: { service_unit: body.service_unit._id },
             duration: {
                 start: new Date(`${body.datetime_local}:00-03:00`).toISOString(),
                 end: new Date(new Date(`${body.datetime_local}:00-03:00`).getTime() + body.duration * 60000).toISOString()
             },
-            owner: owner
+            owner: body.service_unit._id
         });
 
         await RelationModel.create({
@@ -35,6 +35,15 @@ const createAppointment = async (req, res) => {
             from: owner,
             to: appointment._id
         });
+
+        if (body.professional) {
+            await RelationModel.create({
+                type: "assigned_to",
+                owner: professional,
+                from: professional,
+                to: appointment._id
+            });
+        }
 
         const services = body.services.map(id => {
             return {

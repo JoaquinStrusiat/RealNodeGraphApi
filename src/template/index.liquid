@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Reserva - Spa Wellness</title>
+    <style>
+        @media only screen and (max-width: 600px) {
+            .main-table {
+                width: 100% !important;
+            }
+
+            .container {
+                width: 95% !important;
+                margin: 10px auto !important;
+            }
+
+            .header-padding {
+                padding: 30px 20px !important;
+            }
+
+            .content-padding {
+                padding: 25px 20px !important;
+            }
+
+            .footer-padding {
+                padding: 20px 15px !important;
+            }
+
+            .header-title {
+                font-size: 24px !important;
+            }
+
+            .section-title {
+                font-size: 20px !important;
+            }
+
+            .button-container {
+                padding: 15px 0 !important;
+            }
+
+            .primary-button {
+                padding: 12px 25px !important;
+                font-size: 14px !important;
+            }
+
+            .secondary-button {
+                padding: 8px 20px !important;
+                font-size: 13px !important;
+            }
+
+            .service-table {
+                font-size: 13px !important;
+            }
+
+            .service-name {
+                font-size: 14px !important;
+            }
+
+            .hide-mobile {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+
+<body style="margin: 0; padding: 0; font-family: 'Arial', sans-serif; background-color: #f8f9fa; line-height: 1.6;">
+
+    <!-- Container Principal -->
+    <table cellpadding="0" cellspacing="0" border="0" width="100%" class="main-table"
+        style="background-color: #f8f9fa; padding: 20px 0;">
+        <tr>
+            <td align="center">
+                <table cellpadding="0" cellspacing="0" border="0" width="600" class="container"
+                    style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+
+                    <!-- Header -->
+                    <tr>
+                        <td class="header-padding"
+                            style="background: linear-gradient(135deg, #2d7d32 0%, #4caf50 100%); padding: 40px 30px; text-align: center;">
+                            <h1 class="header-title"
+                                style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 300; letter-spacing: 2px;">
+                                SPA Sentirse Bien</h1>
+                            <div
+                                style="width: 60px; height: 3px; background-color: #ffffff; margin: 15px auto; opacity: 0.8;">
+                            </div>
+                            <p style="margin: 15px 0 0 0; color: #ffffff; font-size: 16px; opacity: 0.9;">Tu momento de
+                                relajación está confirmado</p>
+                        </td>
+                    </tr>
+
+                    <!-- Contenido Principal -->
+                    <tr>
+                        <td class="content-padding" style="padding: 40px 30px;">
+
+                            <!-- Saludo -->
+                            <h2 class="section-title"
+                                style="margin: 0 0 20px 0; color: #2d7d32; font-size: 24px; font-weight: 400;">{{ user |
+                                default: "Undefined" }}</h2>
+                            <p style="margin: 0 0 25px 0; color: #555555; font-size: 16px;">Nos complace confirmar tu
+                                reserva en nuestro spa. Prepárate para una experiencia de relajación única.</p>
+
+                            <!-- Detalles de la Reserva -->
+                            <div
+                                style="background-color: #f1f8e9; border-left: 4px solid #4caf50; padding: 25px; margin: 30px 0; border-radius: 8px;">
+                                <h3 style="margin: 0 0 20px 0; color: #2d7d32; font-size: 20px; font-weight: 500;">
+                                    Detalles de tu Reserva</h3>
+
+                                <table cellpadding="0" cellspacing="0" border="0" width="100%">
+                                    <tr>
+                                        <td
+                                            style="padding: 8px 0; color: #2d7d32; font-weight: 600; font-size: 14px; width: 120px; vertical-align: top;">
+                                            FECHA:</td>
+                                        <td style="padding: 8px 0; color: #555555; font-size: 14px;">{{ date | default:
+                                            "Undefined" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td
+                                            style="padding: 8px 0; color: #2d7d32; font-weight: 600; font-size: 14px; vertical-align: top;">
+                                            HORA:</td>
+                                        <td style="padding: 8px 0; color: #555555; font-size: 14px;">{{ time | default:
+                                            "Undefined" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td
+                                            style="padding: 8px 0; color: #2d7d32; font-weight: 600; font-size: 14px; vertical-align: top;">
+                                            PROFESIONAL:</td>
+                                        <td style="padding: 8px 0; color: #555555; font-size: 14px;">{{ professional |
+                                            default: "Undefined" }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Servicios Reservados -->
+                            <div
+                                style="background-color: #ffffff; border: 2px solid #e8f5e8; padding: 25px; margin: 25px 0; border-radius: 8px;">
+                                <h4 style="margin: 0 0 20px 0; color: #2d7d32; font-size: 18px; font-weight: 600;">🌿
+                                    Servicios Reservados</h4>
+
+                                <table cellpadding="0" cellspacing="0" border="0" width="100%" class="service-table"
+                                    style="border-collapse: collapse;">
+                                    <tr style="background-color: #f1f8e9;">
+                                        <th
+                                            style="padding: 12px 8px; text-align: left; color: #2d7d32; font-size: 14px; font-weight: 600; border-bottom: 2px solid #4caf50;">
+                                            Servicio</th>
+                                        <th
+                                            style="padding: 12px 8px; text-align: center; color: #2d7d32; font-size: 14px; font-weight: 600; border-bottom: 2px solid #4caf50;">
+                                            Duración</th>
+                                        <th
+                                            style="padding: 12px 8px; text-align: right; color: #2d7d32; font-size: 14px; font-weight: 600; border-bottom: 2px solid #4caf50;">
+                                            Precio</th>
+                                    </tr>
+
+                                    {% assign total_duration = 0 %}
+                                    {% assign total_price = 0 %}
+
+                                    {% for service in services %}
+                                    {% assign total_duration = total_duration | plus: service.duration %}
+                                    {% assign total_price = total_price | plus: service.price %}
+
+                                    <tr style="border-bottom: 1px solid #e8f5e8;">
+                                        <td class="service-name"
+                                            style="padding: 15px 8px; color: #555555; font-size: 15px; font-weight: 500;">
+                                            {{ service.name }}</td>
+                                        <td
+                                            style="padding: 15px 8px; text-align: center; color: #666666; font-size: 14px;">
+                                            {{ service.duration }} min</td>
+                                        <td
+                                            style="padding: 15px 8px; text-align: right; color: #2d7d32; font-size: 15px; font-weight: 600;">
+                                            ${{ service.price | divided_by: 1 | floor | prepend: '' | append: '' }}</td>
+                                    </tr>
+                                    {% endfor %}
+
+                                    <tr style="background-color: #f1f8e9; border-top: 2px solid #4caf50;">
+                                        <td
+                                            style="padding: 15px 8px; color: #2d7d32; font-size: 16px; font-weight: 700;">
+                                            TOTAL</td>
+                                        <td
+                                            style="padding: 15px 8px; text-align: center; color: #2d7d32; font-size: 14px; font-weight: 600;">
+                                            {{ total_duration }} min</td>
+                                        <td
+                                            style="padding: 15px 8px; text-align: right; color: #2d7d32; font-size: 18px; font-weight: 700;">
+                                            ${{ total_price | divided_by: 1 | floor | prepend: '' | append: '' }}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Información Importante -->
+                            <div
+                                style="background-color: #ffffff; border: 2px solid #e8f5e8; padding: 20px; margin: 25px 0; border-radius: 8px;">
+                                <h4 style="margin: 0 0 15px 0; color: #2d7d32; font-size: 16px; font-weight: 600;">📍
+                                    Información Importante</h4>
+                                <ul style="margin: 0; padding-left: 20px; color: #555555; font-size: 14px;">
+                                    <li style="margin-bottom: 8px;">Llega 10 minutos antes de tu cita</li>
+                                    <li style="margin-bottom: 8px;">Trae ropa cómoda y una muda extra</li>
+                                    <li style="margin-bottom: 8px;">Evita comidas pesadas 2 horas antes</li>
+                                    <li style="margin-bottom: 8px;">Para cancelar, avisa con 24hs de anticipación</li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td class="footer-padding"
+                            style="background-color: #2d7d32; padding: 30px; text-align: center;">
+                            <h3 style="margin: 0 0 15px 0; color: #ffffff; font-size: 18px; font-weight: 400;">Spa Sentirse Bien</h3>
+                            <p style="margin: 0 0 8px 0; color: #ffffff; font-size: 14px; opacity: 0.9;">📍 Calle C. French 414</p>
+                            <p style="margin: 0 0 20px 0; color: #ffffff; font-size: 14px; opacity: 0.9;">✉️ spasentisebien@gmail.com</p>
+
+                            <!-- Redes Sociales -->
+                            <div style="margin: 20px 0;">
+                                <a href="https://www.facebook.com/fede.aranda.90/"
+                                    style="display: inline-block; margin: 0 10px; width: 35px; height: 35px; background-color: #ffffff; border-radius: 50%; text-align: center; line-height: 35px; text-decoration: none; color: #2d7d32; font-size: 16px; font-weight: bold;">f</a>
+                                <a href="#"
+                                    style="display: inline-block; margin: 0 10px; width: 35px; height: 35px; background-color: #ffffff; border-radius: 50%; text-align: center; line-height: 35px; text-decoration: none; color: #2d7d32; font-size: 16px; font-weight: bold;">@</a>
+                                <a href="https://www.instagram.com/joa_strusiat/"
+                                    style="display: inline-block; margin: 0 10px; width: 35px; height: 35px; background-color: #ffffff; border-radius: 50%; text-align: center; line-height: 35px; text-decoration: none; color: #2d7d32; font-size: 16px; font-weight: bold;">in</a>
+                            </div>
+
+                            <p style="margin: 20px 0 0 0; color: #ffffff; font-size: 12px; opacity: 0.7;">© 2025 Spa SentirseBien. Todos los derechos reservados.</p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+
+</html>

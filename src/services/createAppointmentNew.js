@@ -4,39 +4,44 @@ const RelationModel = require("../api/models/RelationModel");
 const UserModel = require("../api/models/UserModel");
 const transporter = require('../utils/emailTransporter');
 const getLiquidTemplate = require("../utils/getLiquidTemplate");
+const mongoose = require('mongoose');
 const localEmail = process.env.EMAIL;
 
-/* 
-    {
-        datetime = date,
-        services = [],
-        professional = id,
-        service_unit = id,
-        pay:{
-            isPaid = true,
-            cradData = {
-                name = name,
-                number = number,
-                expiration = expiration,
-                cvv = cvv
-            }
-            discount = [
-                {    
-                    type: "percentage" | "amount",
-                    value: 10,
-                    reason: "Descuento por fidelidad"
-                }
-            ]
+/* new object
+{
+    "datetime": "2025-06-11T11:00:00.000Z",
+    "professional": "6817ded1a881b7d0a35e25ad",
+    "service_unit": "6819fccf6b483e8f69f3ca15",
+    "isPaid": true,
+    "discount": [
+        {
+            "type": "percentage",
+            "value": 10,
+            "reason": "Descuento por reservar 48h antes: "
         }
+    ],
+    "services": [
+        "681a162abf0d1ef4fb57827b",
+        "681a1d17bf0d1ef4fb57828c"
+    ],
+    "cardData": {
+        "number": "1234567890876878",
+        "name": "joa",
+        "expiry": "12/26",
+        "cvc": "200"
     }
+} 
 */
+// Validar y procesar cardData cuando se integre pasarela de pago
 
 const createAppointmentNew = async (req, res) => {
     const { path, method, body, owner } = req;
     const response = { path, method };
+    const session = await mongoose.startSession(); // Iniciar sesión
 
     try {
-        const requiredFields = ["datetime", "services", "service_unit", "pay", "professional"];
+        session.startTransaction(); // Iniciar transacción
+        const requiredFields = ["datetime", "services", "service_unit", "isPaid", "professional", "discount"];
         for (const field of requiredFields) {
             if (!(field in body)) throw new Error(`The attribute '${field}' is required.`);
         }
@@ -48,27 +53,26 @@ const createAppointmentNew = async (req, res) => {
         const duration = services.reduce((acc, service) => acc + service.props.get("duration"), 0);
 
         // Create the appointment
-        const appointment = await EventModel.create({
+        const appointment = await EventModel.create([{
             type: "spa_appointment",
             name: `Turno de ${user.email}`,
             access: "public",
             tags: [user.email, owner],
             props: {
-                service_unit: body.service_unit,
                 services: services,
-                professinal: professional,
-                is_paid: body.pay?.isPaid ?? false,
-                discount: body.pay?.discount ?? []
+                professional: professional,
+                is_paid: body.isPaid ?? false,
+                discount: body.discount ?? []
             },
             duration: {
                 start: new Date(body.datetime),
                 end: new Date(new Date(body.datetime).getTime() + (duration * 60000))
             },
             owner: body.service_unit
-        });
+        }], { session });
 
         // Create the relation whit the user
-        await RelationModel.create({
+        await RelationModel.create([{
             type: "has_appointment",
             owner: owner,
             props: {
@@ -76,15 +80,15 @@ const createAppointmentNew = async (req, res) => {
             },
             from: owner,
             to: appointment._id
-        });
+        }], { session });
 
         //Create the relation whit the professional
-        await RelationModel.create({
+        await RelationModel.create([{
             type: "assigned_to",
             owner: professional._id,
             from: professional._id,
             to: appointment._id
-        });
+        }], { session });
 
         const servicesRelation = body.services.map(id => {
             return {
@@ -96,7 +100,7 @@ const createAppointmentNew = async (req, res) => {
         })
 
         //Creat the relations white the services
-        await RelationModel.create(servicesRelation);
+        await RelationModel.create(servicesRelation, { session });
 
         //Create the html email
         const HTML = await getLiquidTemplate("src/template/index2.liquid", {
@@ -112,12 +116,13 @@ const createAppointmentNew = async (req, res) => {
                 })
                 return acc;
             }, []),
-            discount: body.pay?.discount ?? []
+            discount: body.discount ?? []
         })
 
         // Send email
+        //from: `Spa Sentirse Bien <${localEmail}>`,
         await transporter.sendMail({
-            from: `Spa Sentirse Bien <${localEmail}>`,
+            from: `Spa Sentirse Bien`,
             to: user.email,
             subject: "Reservación de turno",
             html: HTML,
@@ -130,8 +135,11 @@ const createAppointmentNew = async (req, res) => {
 
         return res.status(201).json(response)
     } catch (error) {
+        await session.abortTransaction();
         response.error = { message: error.message };
         return res.status(400).json(response);
+    } finally {
+        await session.endSession();
     }
 }
 
@@ -162,3 +170,30 @@ function formatArgentineTime(isoString) {
 }
 
 module.exports = createAppointmentNew;
+
+
+
+/* 
+    {
+        datetime = date,
+        services = [],
+        professional = id,
+        service_unit = id,
+        pay:{
+            isPaid = true,
+            cradData = {
+                name = name,
+                number = number,
+                expiration = expiration,
+                cvv = cvv
+            }
+            discount = [
+                {    
+                    type: "percentage" | "amount",
+                    value: 10,
+                    reason: "Descuento por fidelidad"
+                }
+            ]
+        }
+    }
+*/

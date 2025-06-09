@@ -37,10 +37,9 @@ const localEmail = process.env.EMAIL;
 const createAppointmentNew = async (req, res) => {
     const { path, method, body, owner } = req;
     const response = { path, method };
-    const session = await mongoose.startSession(); // Iniciar sesión
+
 
     try {
-        session.startTransaction(); // Iniciar transacción
         const requiredFields = ["datetime", "services", "service_unit", "isPaid", "professional", "discount"];
         for (const field of requiredFields) {
             if (!(field in body)) throw new Error(`The attribute '${field}' is required.`);
@@ -53,7 +52,7 @@ const createAppointmentNew = async (req, res) => {
         const duration = services.reduce((acc, service) => acc + service.props.get("duration"), 0);
 
         // Create the appointment
-        const appointment = await EventModel.create([{
+        const appointment = await EventModel.create({
             type: "spa_appointment",
             name: `Turno de ${user.email}`,
             access: "public",
@@ -69,27 +68,30 @@ const createAppointmentNew = async (req, res) => {
                 end: new Date(new Date(body.datetime).getTime() + (duration * 60000))
             },
             owner: body.service_unit
-        }], { session });
+        });
 
         // Create the relation whit the user
-        await RelationModel.create([{
+        await RelationModel.create({
             type: "has_appointment",
             owner: owner,
             props: {
                 "custom_requests": body.custom_requests || ""
             },
             from: owner,
-            to: appointment._id
-        }], { session });
+            to: appointment._id.toString()
+        });
+        console.log("user relation");
+
 
         //Create the relation whit the professional
-        await RelationModel.create([{
+        await RelationModel.create({
             type: "assigned_to",
             owner: professional._id,
             from: professional._id,
             to: appointment._id
-        }], { session });
+        });
 
+        console.log("prof relation");
         const servicesRelation = body.services.map(id => {
             return {
                 type: "assigned_service",
@@ -98,9 +100,13 @@ const createAppointmentNew = async (req, res) => {
                 to: id
             }
         })
+        console.log("pre services relation");
+
 
         //Creat the relations white the services
-        await RelationModel.create(servicesRelation, { session });
+        await RelationModel.create(servicesRelation);
+        console.log("services relation");
+
 
         //Create the html email
         const HTML = await getLiquidTemplate("src/template/index2.liquid", {
@@ -135,11 +141,8 @@ const createAppointmentNew = async (req, res) => {
 
         return res.status(201).json(response)
     } catch (error) {
-        await session.abortTransaction();
         response.error = { message: error.message };
         return res.status(400).json(response);
-    } finally {
-        await session.endSession();
     }
 }
 

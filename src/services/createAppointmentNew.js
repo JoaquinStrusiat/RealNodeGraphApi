@@ -32,12 +32,10 @@ const localEmail = process.env.EMAIL;
     }
 } 
 */
-// Validar y procesar cardData cuando se integre pasarela de pago
 
 const createAppointmentNew = async (req, res) => {
     const { path, method, body, owner } = req;
     const response = { path, method };
-
 
     try {
         const requiredFields = ["datetime", "services", "service_unit", "isPaid", "professional", "discount"];
@@ -46,10 +44,16 @@ const createAppointmentNew = async (req, res) => {
         }
         if (body.services.length === 0) throw new Error("El carrito no puede estar vacío");
 
-        const services = await ObjectModel.find({ _id: { $in: body.services } }, ["name", "image", "props", "type"]);
+        const servicesRes = await ObjectModel.find({ _id: { $in: body.services } }, ["name", "image", "props", "type"]).populate({ path: "type" }).lean();;
+        const services = servicesRes.map(service => {
+            const { type, ...allProps } = service;
+            return { ...allProps, type: type.name };
+        });
+        console.log(services);
+
         const professional = await UserModel.findById(body.professional, ["name", "last_name", "email"]);
         const user = await UserModel.findById(owner, ["name", "last_name", "email"]);
-        const duration = services.reduce((acc, service) => acc + service.props.get("duration"), 0);
+        const duration = services.reduce((acc, service) => acc + service.props.duration, 0);
 
         // Create the appointment
         const appointment = await EventModel.create({
@@ -117,8 +121,8 @@ const createAppointmentNew = async (req, res) => {
             services: services.reduce((acc, service) => {
                 acc.push({
                     name: service.name,
-                    duration: service.props.get("duration"),
-                    price: service.props.get("price")
+                    duration: service.props.duration,
+                    price: service.props.price
                 })
                 return acc;
             }, []),
@@ -173,30 +177,3 @@ function formatArgentineTime(isoString) {
 }
 
 module.exports = createAppointmentNew;
-
-
-
-/* 
-    {
-        datetime = date,
-        services = [],
-        professional = id,
-        service_unit = id,
-        pay:{
-            isPaid = true,
-            cradData = {
-                name = name,
-                number = number,
-                expiration = expiration,
-                cvv = cvv
-            }
-            discount = [
-                {    
-                    type: "percentage" | "amount",
-                    value: 10,
-                    reason: "Descuento por fidelidad"
-                }
-            ]
-        }
-    }
-*/

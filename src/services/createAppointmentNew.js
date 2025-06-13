@@ -49,7 +49,6 @@ const createAppointmentNew = async (req, res) => {
             const { type, ...allProps } = service;
             return { ...allProps, type: type.name };
         });
-        console.log(services);
 
         const professional = await UserModel.findById(body.professional, ["name", "last_name", "email"]);
         const user = await UserModel.findById(owner, ["name", "last_name", "email"]);
@@ -83,6 +82,22 @@ const createAppointmentNew = async (req, res) => {
             },
             from: owner,
             to: appointment._id.toString()
+        });
+
+        //Relación de acceso al turno
+        await RelationModel.create({
+            type: "has_access",
+            owner: body.service_unit,
+            from: owner,
+            to: appointment._id.toString(),
+            props: {
+                "scope": "object",
+                "rules": {
+                    "find": true,
+                    "update": true
+                }
+            },
+            tags: ["has_access", "appointment", user.email ],
         });
 
         //Create the relation whit the professional

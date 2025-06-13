@@ -43,8 +43,8 @@ const createService = async (model, owner, body) => {
 
     try {
         if (!body.owner) body.owner = owner;
-        
-        if(!body.type) throw new ErrorState(400, 'Bad Request', 'The type is required.');
+
+        if (!body.type) throw new ErrorState(400, 'Bad Request', 'The type is required.');
 
         const access = await toCreate(owner, body);
         if (!access) throw new ErrorState(403, 'Forbidden', 'You do not have permission to create this object.');
@@ -76,13 +76,18 @@ const updateService = async (model, owner, body, _id) => {
             if (field in body) throw new ErrorState(400, 'Bad Request', `The attribute '${field}' cannot be modified.`);
         }
 
-        const item = await model.findByIdAndUpdate(_id, { $set: body }, {
+        /* const item = await model.findByIdAndUpdate(_id, { $set: body }, {
             new: true,              // devuelve el documento actualizado
             runValidators: true,    // valida el body contra el esquema de Mongoose
             context: 'query',       // necesario para algunas validaciones (por ej., validators personalizados)
             upsert: false,          // NO crea un nuevo documento si no existe
             optimisticConcurrency: true
-        });
+        }); */
+
+        object.set(body);           // Aplica los cambios
+        await object.validate();    // Lanza error si algo no pasa validación
+        const item = await object.save();  // Guarda los cambios
+
         return item;
     } catch (error) {
         if (error.name === 'ValidationError') throw new ErrorState(400, 'ValidationError', error.message);

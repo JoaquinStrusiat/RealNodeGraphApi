@@ -84,8 +84,6 @@ const createAppointmentNew = async (req, res) => {
             from: owner,
             to: appointment._id.toString()
         });
-        console.log("user relation");
-
 
         //Create the relation whit the professional
         await RelationModel.create({
@@ -95,7 +93,6 @@ const createAppointmentNew = async (req, res) => {
             to: appointment._id
         });
 
-        console.log("prof relation");
         const servicesRelation = body.services.map(id => {
             return {
                 type: "assigned_service",
@@ -104,13 +101,9 @@ const createAppointmentNew = async (req, res) => {
                 to: id
             }
         })
-        console.log("pre services relation");
-
 
         //Creat the relations white the services
         await RelationModel.create(servicesRelation);
-        console.log("services relation");
-
 
         //Create the html email
         const HTML = await getLiquidTemplate("src/template/index2.liquid", {

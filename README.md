@@ -7,6 +7,7 @@ Este backend está diseñado como un **BaaS multi-tenant**, seguro, extensible y
 * Crear objetos, eventos y relaciones.
 * Definir sus propios tipos con validación.
 * Consultar sus datos con una API potente y flexible basada en MongoDB Aggregation.
+* Integrar servicios genéricos como almacenamiento, IA, motores de plantillas, etc.
 
 Es una plataforma tipo “GraphQL invertido” donde el cliente arma su query (pipeline) y el backend la ejecuta **con validaciones, control de acceso y filtros automáticos**.
 
@@ -27,21 +28,28 @@ Es una plataforma tipo “GraphQL invertido” donde el cliente arma su query (p
 * `type`: referencia a un `ObjectType` que contiene su schema.
 * `props`: mapa dinámico validado por un esquema AJV guardado en el tipo.
 
+### 3. Módulos adicionales
+
+* `auth`: contiene las rutas de login y registro utilizando Passport y JWT.
+* `services`: lógica reutilizable del backend, orientada a proveer capacidades adicionales como:
+
+  * Almacenamiento de imágenes.
+  * Integración con motores Liquid.
+  * Servicios de IA (clasificación, NLP, etc.).
+  * Orquestadores o servicios externos.
+
 ---
 
 ## 🔐 Seguridad y control de acceso
 
 ### Modelo de acceso implementado:
 
-* ✅ **RBAC**: roles definidos por el cliente.
-* ✅ **ABAC**: atributos como `owner`, `access`, `has_access`.
 * ✅ Filtros automáticos al recibir pipelines desde el cliente.
-
-Los roles no son estáticos: **cada cliente define sus propios roles y decide a qué información tienen acceso esos roles**. Esto se logra mediante relaciones `has_access`, que pueden otorgar permisos:
-
-* A un objeto específico.
-* A todos los objetos de un tipo particular.
-* A todos los objetos de un `owner` determinado.
+* ✅ **ABAC**: Se implementa control basado en atributos como `owner`, `access`, y relaciones explícitas del tipo `has_access`, que almacenan metadatos definidos por el cliente. Estas relaciones determinan políticas de acceso, alcance y permisos (find, create, update, delete) aplicables a:
+  * A un objeto específico.
+  * A todos los objetos de un tipo particular y de un mismo `owner`.
+  * A todos los objetos de un `owner` determinado.
+* ✅ **RBAC**: Los roles son definidos e instanciados por cada cliente, quien puede asignarlos a un usuarios. A estos roles se les asocian relaciones de tipo has_access, que definen los permisos y el alcance que tendrán sobre los datos (a nivel de documento, tipo u owner).
 
 ### Seguridad garantizada en cada nivel:
 
@@ -60,23 +68,6 @@ El cliente envía un pipeline de MongoDB Aggregation. El backend:
 1. Valida el pipeline (evita `$out`, `$merge`, etc.).
 2. Inserta filtros automáticos para asegurar visibilidad restringida.
 3. Ejecuta con performance garantizada mediante índices y límites.
-
-### Ejemplo de filtro de acceso insertado automáticamente:
-
-```json
-{
-  "$match": {
-    "$expr": {
-      "$or": [
-        { "$eq": ["$owner", "<user_id>"] },
-        { "$eq": ["$access", "public"] },
-        { "$in": ["<user_id>", "$access.users"] },
-        { "$in": ["admin", "$access.roles"] }
-      ]
-    }
-  }
-}
-```
 
 ---
 
@@ -112,6 +103,7 @@ Los objetos se validan en tiempo de inserción o actualización contra este sche
 * Esquema dinámico pero validado (schema-on-read).
 * Permite representar conocimiento, relaciones semánticas y estructuras complejas.
 * Diseño modular para escalabilidad vertical por tipo de entidad.
+* Soporte para microservicios adicionales como cacheo (Redis), AI, almacenamiento, y más.
 
 ---
 
@@ -124,17 +116,7 @@ Soporte planificado para:
 * Hooks por tipo (beforeCreate, afterUpdate...).
 * Formularios dinámicos (con JSON Schema generado a partir del tipo).
 * Exportación/importación de tipos y datos.
-
----
-
-## 📈 Roadmap sugerido
-
-* [ ] Sistema de logging y auditoría por acceso.
-* [ ] Generación de índices automáticos desde los tipos.
-* [ ] Límite de profundidad para `$lookup` recursivo.
-* [ ] Documentación OpenAPI generada.
-* [ ] Filtros de cuota por tenant.
-* [ ] Interfaz visual (como Supabase Studio).
+* Servicios auxiliares extensibles por módulo o plugin.
 
 ---
 
@@ -142,4 +124,4 @@ Soporte planificado para:
 
 Este backend es una plataforma robusta para representar conocimiento y relaciones complejas entre entidades, con la flexibilidad de una base de datos NoSQL y la estructura de un modelo relacional o semántico.
 
-Permite a los usuarios modelar, validar y consultar datos complejos, **respetando siempre el aislamiento, seguridad y permisos personalizados definidos por cada cliente.**
+Permite a los usuarios modelar, validar y consultar datos complejos, **respetando siempre el aislamiento, seguridad y permisos personalizados definidos por cada cliente**, y extendible a través de servicios adicionales modulares.
